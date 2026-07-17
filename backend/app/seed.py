@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .character_sync import sync_characters_from_words
-from .database import SessionLocal, init_db
+from .database import SessionLocal
 from .models import (
     Character,
     Group,
@@ -222,7 +222,6 @@ def replace_data(db: Session, data: ParsedData) -> None:
 
 
 def seed_database(markdown_dir: Path = DEFAULT_MARKDOWN_DIR) -> ParsedData:
-    init_db()
     data = load_markdown_data(markdown_dir)
 
     with SessionLocal() as db:

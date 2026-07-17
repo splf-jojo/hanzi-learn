@@ -1,0 +1,7 @@
+# Тяжёлые ML-зависимости OCR-домена. Ядро приложения и тесты работают без них:
+# движки грузятся лениво и мокаются в тестах.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2
+open_clip_torch==3.3.0
+paddlepaddle==3.3.1
+paddleocr==3.6.0

@@ -1,9 +1,9 @@
-from datetime import date, datetime
+from datetime import datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .database import Base
+from ..database import Base
 
 
 class Word(Base):
@@ -132,39 +132,3 @@ class GroupWord(Base):
 
     group: Mapped[Group] = relationship(back_populates="word_links")
     word: Mapped[Word] = relationship(back_populates="group_links")
-
-
-class Note(Base):
-    __tablename__ = "notes"
-    __table_args__ = (UniqueConstraint("user_id", "note_date", name="uq_notes_user_date"),)
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
-    note_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
-    text: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    created_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    updated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-
-
-class UserWordProgress(Base):
-    __tablename__ = "user_word_progress"
-
-    user_id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    word_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
-    knowledge_level: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
-    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    next_review_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-
-    word: Mapped[Word] = relationship(back_populates="progress_entries")
-
-
-class UserCharacterProgress(Base):
-    __tablename__ = "user_character_progress"
-
-    user_id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    character_id: Mapped[int] = mapped_column(ForeignKey("characters.id", ondelete="CASCADE"), primary_key=True)
-    knowledge_level: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
-    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    next_review_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-
-    character: Mapped[Character] = relationship(back_populates="progress_entries")
