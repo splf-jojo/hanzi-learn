@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="mushroom">
+  <defs>
+    <radialGradient id="cap" cx="38%" cy="26%" r="72%">
+      <stop offset="0" stop-color="#d83f36"/>
+      <stop offset="0.62" stop-color="#b82f2a"/>
+      <stop offset="1" stop-color="#7f201e"/>
+    </radialGradient>
+    <linearGradient id="stem" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff5df"/>
+      <stop offset="1" stop-color="#d9b987"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="36" fill="#f7f3eb"/>
+  <ellipse cx="160" cy="235" rx="86" ry="18" fill="#dfd6c6"/>
+  <path d="M132 146c-9 42-17 81-4 99 10 14 52 14 64 0 16-18 7-58-5-99z" fill="url(#stem)" stroke="#b99161" stroke-width="5"/>
+  <path d="M58 155c5-74 51-116 104-116 59 0 101 43 100 117-35 19-166 20-204-1z" fill="url(#cap)" stroke="#6f1d1b" stroke-width="6"/>
+  <circle cx="119" cy="88" r="20" fill="#fff5df"/>
+  <circle cx="174" cy="72" r="16" fill="#fff5df"/>
+  <circle cx="214" cy="114" r="19" fill="#fff5df"/>
+  <circle cx="86" cy="131" r="14" fill="#fff5df"/>
+</svg>
