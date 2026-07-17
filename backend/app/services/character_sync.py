@@ -3,7 +3,7 @@ import unicodedata
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .models import Character, Word, WordCharacter
+from ..models import Character, Word, WordCharacter
 
 PINYIN_INITIALS = [
     "zh",
