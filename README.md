@@ -1,20 +1,20 @@
-# Chinese Words
+# Hanzi Learn
 
-Локальное веб-приложение для изучения китайских слов и иероглифов.
+Локальное веб-приложение для изучения китайских слов и иероглифов —
+теперь вместе с фото-режимом: галерея снимков, поиск похожих изображений
+(CLIP) и распознавание иероглифов на фото (PaddleOCR).
 
 ![Страница слова](docs/screenshots/word-detail.png)
 
 ## Возможности
 
-- словарь: 302 слова и выражения;
-- pinyin и перевод для каждого слова;
-- 300 примеров с подсветкой изучаемого слова;
-- разбор слов на отдельные иероглифы;
-- 19 тематических групп;
-- шесть уровней знания слова от `New` до `Mastered`;
-- карточки по тематическим группам;
+- словарь: 302 слова и выражения, pinyin, перевод, разбор на иероглифы;
+- 300 примеров с подсветкой изучаемого слова, 19 тематических групп;
+- шесть уровней знания слова от `New` до `Mastered`, карточки по группам;
 - заметки по дням с распознаванием слов из словаря;
-- хранение прогресса и заметок в PostgreSQL.
+- **Photo**: загрузка фото, топ-5 похожих снимков из базы (CLIP + pgvector),
+  OCR-боксы поверх фото (PaddleOCR), клик по боксу показывает распознанное слово;
+- всё в PostgreSQL (включая изображения и эмбеддинги).
 
 | Словарь | Карточки |
 | --- | --- |
@@ -23,82 +23,95 @@
 ## Стек
 
 - React 18, Vite 5, Tailwind CSS 3;
-- FastAPI, SQLAlchemy 2;
-- PostgreSQL.
+- FastAPI, SQLAlchemy 2, Alembic, Pydantic 2;
+- PostgreSQL + pgvector;
+- PaddleOCR, open_clip (CPU).
 
-## Запуск
+## Запуск в Docker (одна команда)
 
-Требования: Python 3.11+, Node.js 20+ и PostgreSQL.
+Требуется только Docker:
+
+```bash
+docker compose up
+```
+
+- приложение: http://localhost:8080
+- API/Swagger: http://localhost:8000/docs
+
+Первый запуск долгий: образ бэкенда содержит CPU-сборки torch и Paddle,
+а веса CLIP/OCR докачиваются при первом использовании (кэшируются в volume).
+Схема накатывается Alembic'ом, словарь сеется из markdown автоматически.
+
+## Локальная разработка
+
+Требования: Python 3.12+, Node.js 20+, PostgreSQL 16+ с расширением pgvector.
 
 ### Backend
 
 ```powershell
-cd C:\work\chinese_app\backend
+cd backend
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt
+# OCR/CLIP по желанию (тяжёлые): pip install -r requirements-ml.txt
 ```
 
-Создайте `backend\.env`:
+Создайте `backend\.env` (см. `.env.example`):
 
 ```env
-DATABASE_URL=postgresql+psycopg://postgres:password@localhost:5432/chinese
+DATABASE_URL=postgresql+psycopg://postgres:password@localhost:5432/hanzi
+USE_PADDLEOCR=false
 ```
 
-Создайте базу, загрузите данные и запустите API:
+Создайте базу, накатите схему, загрузите данные, запустите API:
 
 ```powershell
-createdb -h localhost -U postgres chinese
+createdb -h localhost -U postgres hanzi
+python -m alembic upgrade head
 python -m app.seed
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-- API: [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
-- Swagger: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
 ### Frontend
 
 ```powershell
-cd C:\work\chinese_app\frontend
+cd frontend
 npm install
-npm run dev -- --host 127.0.0.1 --port 5174
+npm run dev
 ```
 
-Приложение: [http://127.0.0.1:5174](http://127.0.0.1:5174)
+Приложение: http://localhost:5174 (запросы `/api` проксируются на бэкенд).
 
-Подробная инструкция для Windows и WSL: [START_PROJECT.md](START_PROJECT.md).
+## Тесты
 
-## Управление
+Сервисный слой обоих доменов, OCR и CLIP замоканы; нужна тестовая БД
+(`hanzi_test` по умолчанию, см. `TEST_DATABASE_URL`):
 
-| Экран | Действие | Клавиши |
-| --- | --- | --- |
-| Страница слова | Предыдущее или следующее слово | `←` / `→` |
-| Карточки | Предыдущая или следующая карточка | `A` / `D` или `←` / `→` |
-| Карточки | Перевернуть карточку | `Space` или `↑` |
-| Заметки | Вернуться к списку заметок | `Esc` |
-| Заметки | Перейти между днями | `←` / `→` вне редактора |
-
-## Структура
-
-```text
-frontend/
-  src/components/    страницы и UI-компоненты
-  src/data/api.js    запросы к backend
-
-backend/
-  app/main.py        FastAPI endpoints
-  app/models.py      SQLAlchemy models
-  app/seed.py        импорт данных в PostgreSQL
-  data/*.md          слова, примеры и группы
-  static/photos/     изображения слов
+```powershell
+cd backend
+python -m pytest
 ```
 
-Frontend получает словарь через `/api/data`. Изменения уровней знания и заметок сохраняются отдельными API-запросами.
+## Архитектура
+
+```
+backend/app/
+  api/           тонкие роутеры FastAPI
+  services/      бизнес-логика, маппинг в Pydantic-схемы
+  repositories/  запросы SQLAlchemy ORM
+  models/        таблицы (учебный домен + images/ocr_boxes c pgvector)
+  schemas/       контракты запросов/ответов
+  ocr/           PaddleOCR: движок, парсер, геометрия (ленивая загрузка)
+backend/migrations/   Alembic
+backend/data/         словарь в markdown (источник истины, python -m app.seed)
+frontend/src/         React, hash-роутинг, вкладки Home/Groups/Notes/Flashcards/Photo
+```
+
+Дизайн слияния: `docs/superpowers/specs/2026-07-17-v1-merge-design.md`,
+план развития: `ROADMAP.md`.
 
 ## Ограничения
 
-- используется один локальный профиль `local`;
-- нет авторизации и синхронизации;
-- нет алгоритма интервальных повторений;
-- страницы `Radicals` и `Progress` пока не реализованы;
-- `backend/ai.py` не используется при обычном запуске приложения.
+- один пользователь (`local`), авторизации нет;
+- интервальные повторения (FSRS) — в планах (v2), сейчас только уровни знания;
+- страницы `Radicals`/`Progress` из навигации пока не реализованы.
