@@ -34,3 +34,8 @@ backend/chroma_db/
 .vscode/
 .DS_Store
 Thumbs.db
+
+
+
+photo_promt.txt
+START_PROJECT.md
