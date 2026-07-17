@@ -115,6 +115,72 @@ export async function deleteNote(noteDate) {
   return response.json();
 }
 
+async function readErrorDetail(response, fallbackMessage) {
+  try {
+    const payload = await response.json();
+
+    if (typeof payload.detail === 'string') {
+      return payload.detail;
+    }
+  } catch {
+    // Тело без detail — остаёмся на сообщении по статусу.
+  }
+
+  return fallbackMessage;
+}
+
+export function imageContentUrl(imageId) {
+  return apiUrl(`/api/images/${imageId}/content`);
+}
+
+export async function listImages({ limit = 12, offset = 0 } = {}) {
+  const response = await fetch(apiUrl(`/api/images?limit=${limit}&offset=${offset}`));
+
+  if (!response.ok) {
+    throw new Error(await readErrorDetail(response, `Image list request failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
+export async function getSavedImage(imageId) {
+  const response = await fetch(apiUrl(`/api/images/${imageId}`));
+
+  if (!response.ok) {
+    throw new Error(await readErrorDetail(response, `Image request failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
+export async function searchSimilarImages(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch(apiUrl('/api/images/search'), {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorDetail(response, `Image search failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
+export async function savePendingUpload(uploadId) {
+  const response = await fetch(apiUrl(`/api/uploads/${uploadId}/save`), {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorDetail(response, `Upload save failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
 export async function updateWordKnowledgeLevel(wordId, knowledgeLevel) {
   const response = await fetch(apiUrl(`/api/word-progress/${wordId}/knowledge-level`), {
     method: 'PATCH',

@@ -9,6 +9,7 @@ export function readHashRoute(hash = window.location.hash || window.location.pat
       wordIndex: null,
       characterId: null,
       noteDate: null,
+      photoId: null,
       ...fields,
     };
   }
@@ -27,17 +28,32 @@ export function readHashRoute(hash = window.location.hash || window.location.pat
     });
   }
 
-  const flashcardsGroupMatch = routeValue.match(/^#\/flaschcards\/(.+)$/);
+  // "flaschcards" — легаси-опечатка, старые ссылки продолжают работать.
+  const flashcardsGroupMatch = routeValue.match(/^#\/(?:flashcards|flaschcards)\/(.+)$/);
   if (flashcardsGroupMatch) {
     return route({
-      page: 'flaschcards',
+      page: 'flashcards',
       flashcardsGroupName: decodeURIComponent(flashcardsGroupMatch[1]),
     });
   }
 
-  if (routeValue === '#/flaschcards') {
+  if (routeValue === '#/flashcards' || routeValue === '#/flaschcards') {
     return route({
-      page: 'flaschcards',
+      page: 'flashcards',
+    });
+  }
+
+  const photoMatch = routeValue.match(/^#\/photos\/([0-9a-fA-F-]+)$/);
+  if (photoMatch) {
+    return route({
+      page: 'photo',
+      photoId: photoMatch[1],
+    });
+  }
+
+  if (routeValue === '#/photos') {
+    return route({
+      page: 'photos',
     });
   }
 

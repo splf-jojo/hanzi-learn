@@ -3,6 +3,8 @@ import CharacterDetail from './components/characters/CharacterDetail.jsx';
 import FlashcardsPage from './components/flashcards/FlashcardsPage.jsx';
 import GroupsPage from './components/groups/GroupsPage.jsx';
 import NotesBoardPage from './components/notes/NotesBoardPage.jsx';
+import PhotoDetailPage from './components/photos/PhotoDetailPage.jsx';
+import PhotosPage from './components/photos/PhotosPage.jsx';
 import Sidebar from './components/sidebar/Sidebar.jsx';
 import WordDetail from './components/words/WordDetail.jsx';
 import WordGrid from './components/words/WordGrid.jsx';
@@ -104,7 +106,7 @@ export default function App() {
   const isGroupWord = Boolean(selectedGroup && selectedGroupIndexes.includes(selectedIndex));
   const navigationIndexes = isGroupWord ? selectedGroupIndexes : allWordIndexes;
   const groupName = isGroupWord ? selectedGroup.name : 'All words';
-  const sidebarPage = isGroupWord ? 'groups' : route.page;
+  const sidebarPage = isGroupWord ? 'groups' : route.page === 'photo' ? 'photos' : route.page;
   const selectedPosition = selectedWord ? navigationIndexes.indexOf(selectedIndex) : -1;
   const previousIndex =
     selectedPosition >= 0 && navigationIndexes.length
@@ -238,13 +240,17 @@ export default function App() {
     <div className="app-shell min-h-screen">
       <Sidebar currentPage={sidebarPage} />
       <main className="content">
-        {loadingState.isLoading ? (
+        {route.page === 'photos' ? (
+          <PhotosPage />
+        ) : route.page === 'photo' ? (
+          <PhotoDetailPage photoId={route.photoId} />
+        ) : loadingState.isLoading ? (
           renderStatus('Loading...')
         ) : loadingState.error ? (
           renderStatus('Data unavailable', loadingState.error.message)
         ) : route.page === 'notes' ? (
           <NotesBoardPage words={words} noteDate={route.noteDate} />
-        ) : route.page === 'flaschcards' ? (
+        ) : route.page === 'flashcards' ? (
           <FlashcardsPage groups={groups} words={words} selectedGroupName={route.flashcardsGroupName} />
         ) : route.page === 'groups' ? (
           <GroupsPage groups={navigationGroups} words={words} />

@@ -1203,6 +1203,37 @@ button {
   white-space: nowrap;
 }
 
+.ocr-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ocr-polygon {
+  cursor: pointer;
+  fill: rgba(178, 42, 34, 0.06);
+  stroke: rgba(178, 42, 34, 0.5);
+  stroke-width: 1.4;
+  pointer-events: auto;
+  transition:
+    fill 160ms ease,
+    stroke 160ms ease;
+}
+
+.ocr-polygon:hover {
+  fill: rgba(178, 42, 34, 0.14);
+  stroke: rgba(178, 42, 34, 0.75);
+}
+
+.ocr-polygon.is-selected {
+  fill: rgba(178, 42, 34, 0.18);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .notes-board,
   .note-paper {

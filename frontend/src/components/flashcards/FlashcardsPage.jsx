@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const FLIP_TRANSITION_MS = 250;
 
 function groupHref(groupName) {
-  return `#/flaschcards/${encodeURIComponent(groupName)}`;
+  return `#/flashcards/${encodeURIComponent(groupName)}`;
 }
 
 function wordsForGroup(group, wordsById) {
@@ -174,7 +174,7 @@ function FlashcardStudy({ group, words }) {
   return (
     <section className="relative h-full min-h-0">
       <div className="absolute inset-x-0 top-0 z-10 flex w-full items-center justify-between gap-4">
-        <a className="rounded-sm bg-[rgba(177,43,36,0.08)] px-3 py-2 text-sm font-bold text-[#b22a22]" href="#/flaschcards">
+        <a className="rounded-sm bg-[rgba(177,43,36,0.08)] px-3 py-2 text-sm font-bold text-[#b22a22]" href="#/flashcards">
           {group.name}
         </a>
         <span className="text-sm font-bold text-[#5a5b55]">
