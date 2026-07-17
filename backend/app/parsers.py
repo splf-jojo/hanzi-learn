@@ -3,8 +3,8 @@ from pathlib import Path
 import re
 
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
-DEFAULT_MARKDOWN_DIR = ROOT_DIR / "backend" / "data"
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+DEFAULT_MARKDOWN_DIR = BACKEND_DIR / "data"
 DIVIDER_RE = re.compile(r"^:?-{3,}:?$")
 
 
